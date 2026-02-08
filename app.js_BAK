@@ -1,0 +1,76 @@
+const express = require("express");
+const bodyParser = require("body-parser");
+const path = require("path");
+
+const app = express();
+const PORT = 3000;
+
+// View engine
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+// Middleware
+app.use(express.static(path.join(__dirname, "public")));
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use((req, res, next) => {
+  res.locals.title = "Digital Marketing Agency";
+  next();
+});
+// Routes
+app.get("/", (req, res) => {
+  res.render("index", { title: "Digital Marketing Agency" });
+});
+
+app.get("/services", (req, res) => {
+  res.render("services");
+});
+
+app.get("/contact", (req, res) => {
+  res.render("contact");
+});
+
+app.post("/contact", (req, res) => {
+  console.log(req.body); // later: save to DB or email
+  res.redirect("/thank-you");
+});
+
+app.get("/thank-you", (req, res) => {
+  res.render("thank-you");
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
+const fs = require("fs");
+
+// Contact form handler
+app.post("/contact", (req, res) => {
+  const { name, email, message } = req.body;
+
+  const filePath = path.join(__dirname, "data", "contacts.csv");
+
+  // Create CSV header if file doesn't exist
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(
+      filePath,
+      "Date,Name,Email,Message\n",
+      { flag: "a" }
+    );
+  }
+
+  // Escape double quotes for CSV safety
+  const cleanMessage = message.replace(/"/g, '""');
+
+  const row = `"${new Date().toISOString()}","${name}","${email}","${cleanMessage}"\n`;
+
+  fs.appendFile(filePath, row, err => {
+    if (err) {
+      console.error("CSV write error:", err);
+      return res.status(500).send("Server error");
+    }
+    res.redirect("/thank-you");
+  });
+});
+

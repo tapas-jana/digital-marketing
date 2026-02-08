@@ -1,0 +1,23 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
+
+nav a {
+  margin-right: 15px;
+  text-decoration: none;
+}
+
+.hero {
+  padding: 60px;
+  background: #0f62fe;
+  color: white;
+}
+
+.btn {
+  background: white;
+  color: #0f62fe;
+  padding: 10px 20px;
+  text-decoration: none;
+}
+
